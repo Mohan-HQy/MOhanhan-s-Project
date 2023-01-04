@@ -1,0 +1,236 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              01/03/2023 18:49:58 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\51danpanji\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\m
+                    -ain.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <HCSR04.h>
+   3          #include <delay.h>
+   4          
+   5          /*
+   6          电机
+   7          */
+   8          sbit IN1 = P3^4;
+   9          sbit IN2 = P3^5;
+  10          sbit IN3 = P3^6;
+  11          sbit IN4 = P3^7;
+  12          
+  13          /*
+  14          循迹红外
+  15          */
+  16          sbit AL =P2^0;
+  17          sbit BL =P2^1;
+  18          sbit CL =P2^2;
+  19          sbit DL =P2^3;
+  20          sbit EL =P2^4;
+  21          
+  22          /*
+  23          左右红外
+  24          */
+  25          sbit LLED =P0^6;
+  26          sbit RLED =P0^7;
+  27          
+  28          /*
+  29          SG90舵机
+  30          */
+  31          sbit PWM=P1^0;//舵机信号
+  32          
+  33          
+  34          void Timer1Init(void)           //100微秒@11.0592MHz
+  35          {
+  36   1              TMOD &= 0x0F;           //设置定时器模式
+  37   1              TL1 = 0xAE;             //设置定时初始值
+  38   1              TH1 = 0xFB;             //设置定时初始值
+  39   1              TF1 = 0;                //清除TF1标志
+  40   1              TR1 = 1;                //定时器1开始计时
+  41   1              ET1=1;
+  42   1              EA=1;
+  43   1      }
+  44          
+  45          
+  46          
+  47          /*
+  48                          //前进
+  49                          IN1=1;//左边
+  50                          IN2=0;
+  51                          
+  52                          IN3=1;//右边
+  53                          IN4=0;
+  54          */
+C51 COMPILER V9.60.0.0   MAIN                                                              01/03/2023 18:49:58 PAGE 2   
+
+  55          /*
+  56                          //左转
+  57                          IN1=0;//左边
+  58                          IN2=1;
+  59                          
+  60                          IN3=1;//右边
+  61                          IN4=0;
+  62          */
+  63          /*
+  64                          //右转
+  65                          IN1=1;//左边
+  66                          IN2=0;
+  67                          
+  68                          IN3=0;//右边
+  69                          IN4=1;
+  70          */
+  71          
+  72          unsigned int  lenth,Lr,Ll;
+  73          unsigned int  L=10;//10cm
+  74          unsigned int counter=0,compare=10;
+  75          
+  76          
+  77          void main(void)
+  78          {
+  79   1              unsigned char a;
+  80   1              unsigned char b;
+  81   1              unsigned char c;
+  82   1              unsigned char d;
+  83   1              unsigned char e;
+  84   1              ultra_init();
+  85   1              Timer1Init();
+  86   1              while(1)
+  87   1              {       
+  88   2                      a=AL;
+  89   2                      b=BL;
+  90   2                      c=CL;
+  91   2                      d=DL;
+  92   2                      e=EL;
+  93   2                      lenth=get_distance();
+  94   2                      if(lenth>L)
+  95   2                      {
+  96   3                                      if(LLED==RLED)
+  97   3                                      {
+  98   4                                                                      IN1=1;//左边//前进
+  99   4                                                                      IN2=0;
+ 100   4                                                                      IN3=1;//右边
+ 101   4                                                                      IN4=0;
+ 102   4                                                                      if(a+b>d+e)//黑线在左边
+ 103   4                                                                      {
+ 104   5                                                                              //左转
+ 105   5                                                                              IN1=0;//左边
+ 106   5                                                                              IN2=1;
+ 107   5                                                                              IN3=1;//右边
+ 108   5                                                                              IN4=0;
+ 109   5                                                                      }
+ 110   4                                                                      else if(a+b<d+e)//黑线在右边
+ 111   4                                                                      {
+ 112   5                                                                              //右转
+ 113   5                                                                              IN1=1;//左边
+ 114   5                                                                              IN2=0;
+ 115   5                                                                              IN3=0;//右边
+ 116   5                                                                              IN4=1;
+C51 COMPILER V9.60.0.0   MAIN                                                              01/03/2023 18:49:58 PAGE 3   
+
+ 117   5                                                                      }
+ 118   4                                                                      else//黑线偏中
+ 119   4                                                                      {
+ 120   5                                                                              //前进
+ 121   5                                                                              IN1=1;//左边
+ 122   5                                                                              IN2=0;
+ 123   5                                                                              IN3=1;//右边
+ 124   5                                                                              IN4=0;  
+ 125   5                                                                      }
+ 126   4                                      }
+ 127   3                                      else
+ 128   3                                      {
+ 129   4                                              if(RLED==0)
+ 130   4                                              {
+ 131   5                                                      //左转
+ 132   5                                                      IN1=1;//左边
+ 133   5                                                      IN2=1;
+ 134   5                                                      
+ 135   5                                                      IN3=1;//右边
+ 136   5                                                      IN4=0;
+ 137   5                                              }
+ 138   4                                              else
+ 139   4                                              {
+ 140   5                                                      //右转
+ 141   5                                                      IN1=1;//左边
+ 142   5                                                      IN2=0;
+ 143   5                                                      
+ 144   5                                                      IN3=1;//右边
+ 145   5                                                      IN4=1;
+ 146   5                                              }
+ 147   4                                      }
+ 148   3                      }
+ 149   2                      else
+ 150   2                      {
+ 151   3                              //停止
+ 152   3                              IN1=1;//左边
+ 153   3                              IN2=1;                  
+ 154   3                              IN3=1;//右边
+ 155   3                              IN4=1;
+ 156   3                              
+ 157   3                              Delay10us(15000);
+ 158   3                              compare=4;//右边
+ 159   3                              Delay10us(25000);
+ 160   3                              Lr=get_distance();
+ 161   3                              Delay10us(25000);
+ 162   3                              compare=15;//左边
+ 163   3                              Delay10us(25000);
+ 164   3                              Ll=get_distance();
+ 165   3                              Delay10us(25000);
+ 166   3                              compare=10;//复位向前
+ 167   3                                              if(Lr>Ll||Lr<0)
+ 168   3                                              {
+ 169   4                                                      //右转
+ 170   4                                                      IN1=1;//左边
+ 171   4                                                      IN2=0;  
+ 172   4                                                      IN3=0;//右边
+ 173   4                                                      IN4=1;
+ 174   4                                              }
+ 175   3                                              else
+ 176   3                                              {
+ 177   4                                                      //左转
+ 178   4                                                      IN1=0;//左边
+C51 COMPILER V9.60.0.0   MAIN                                                              01/03/2023 18:49:58 PAGE 4   
+
+ 179   4                                                      IN2=1;
+ 180   4                                                      IN3=1;//右边
+ 181   4                                                      IN4=0;
+ 182   4                                              }
+ 183   3                                              Delay10us(33500);
+ 184   3                      }  
+ 185   2              }
+ 186   1      }
+ 187          
+ 188          void Timer_T1(void) interrupt 3
+ 189          {
+ 190   1              TL1 = 0xAE;             //设置定时初始值
+ 191   1              TH1 = 0xFB;             //设置定时初始值
+ 192   1              if(counter<compare)
+ 193   1              {
+ 194   2                      PWM=1;
+ 195   2              }
+ 196   1              else
+ 197   1              {
+ 198   2                      PWM=0;
+ 199   2              }
+ 200   1              counter++;
+ 201   1              if(counter>200)
+ 202   1              {
+ 203   2                      counter=0;
+ 204   2              }
+ 205   1      
+ 206   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    351    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
