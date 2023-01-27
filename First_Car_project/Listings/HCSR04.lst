@@ -1,0 +1,94 @@
+C51 COMPILER V9.60.7.0   HCSR04                                                            01/27/2023 12:05:00 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE HCSR04
+OBJECT MODULE PLACED IN .\Objects\HCSR04.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Software\HCSR04.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\User;.\Software) DEBUG
+                    - OBJECTEXTEND PRINT(.\Listings\HCSR04.lst) OBJECT(.\Objects\HCSR04.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <delay.h>
+   3          
+   4          #define MHZ  11.0592   //单片机晶振频率
+   5          
+   6          unsigned int sound_speed;
+   7          
+   8          sbit Trig=P0^0;
+   9          sbit Echo=P3^2;
+  10          
+  11          void Timer0Init(void)           //计数器
+  12          {
+  13   1              TMOD &= 0xF0;           //设置定时器模式
+  14   1              TMOD |= 0x09;           //设置定时器模式
+  15   1              TL0 = 0x00;             //设置定时初始值
+  16   1              TH0 = 0x00;             //设置定时初始值
+  17   1              TF0 = 0;                //清除TF0标志
+  18   1              TR0 = 1;        //定时器不会即开始
+  19   1      }
+  20          
+  21          void ultra_init(void)//超声波
+  22          {
+  23   1              Trig=0;
+  24   1              Echo=0;
+  25   1              Timer0Init();
+  26   1      }
+  27          
+  28          int get_distance(void)
+  29          {
+  30   1              unsigned int timeH,timeL;
+  31   1              unsigned int distance,time;
+  32   1              unsigned int time_counter=0;
+  33   1              ultra_init();
+  34   1              
+  35   1              Trig=1;
+  36   1              Delay10us(1);
+  37   1              Trig=0;
+  38   1              Echo=1;
+  39   1              
+  40   1               while(!Echo)//等待
+  41   1               {
+  42   2                      time_counter++;
+  43   2                       Delay10us(1);
+  44   2                       if(time_counter>10000)
+  45   2                       {
+  46   3                              return -1;//出错
+  47   3                       }
+  48   2               }
+  49   1               time_counter=0;
+  50   1           while(Echo)//等待
+  51   1               {
+  52   2                      time_counter++;
+  53   2                      Delay10us(1);
+  54   2                       if(time_counter>10000)
+C51 COMPILER V9.60.7.0   HCSR04                                                            01/27/2023 12:05:00 PAGE 2   
+
+  55   2                       {
+  56   3                              return -2;//出错
+  57   3                       }
+  58   2               }
+  59   1           timeH =TH0;
+  60   1               timeL =TL0;
+  61   1               TH0=0;//重置计数器
+  62   1               TL0=0;
+  63   1           time=timeH*256+timeL;
+  64   1               if(time>70000)return -3;//出错
+  65   1               distance=time*(MHZ/12)/10000*170;//距离：CM
+  66   1               return distance;
+  67   1      
+  68   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    208    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

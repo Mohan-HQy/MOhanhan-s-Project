@@ -1,0 +1,98 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              01/27/2023 12:04:59 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE User\main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\User;.\Software) DEBUG OBJEC
+                    -TEXTEND PRINT(.\Listings\main.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <HCSR04.h>
+   3          #include <delay.h>
+   4          #include <Timer.h>
+   5          #include <track.h>
+   6          #include <Move.h>
+   7          
+   8          /*
+   9          左右红外
+  10          */
+  11          sbit LLED =P0^6;
+  12          sbit RLED =P0^7;
+  13          
+  14          extern unsigned int compare;
+  15          unsigned int  lenth,Lr,Ll;
+  16          unsigned int  L=10;//小车与障碍物的预定距离---->10cm
+  17          
+  18          void main(void)
+  19          {               
+  20   1              Timer1Init();
+  21   1              Timer2Init();
+  22   1              ultra_init();
+  23   1              
+  24   1              while(1)
+  25   1              {       
+  26   2                      lenth=get_distance();
+  27   2                      if(lenth>=L)
+  28   2                      {
+  29   3                                      if(LLED==RLED)
+  30   3                                      {
+  31   4                                              Track();
+  32   4                                      }
+  33   3                                      else
+  34   3                                      {
+  35   4                                              if(RLED==0)
+  36   4                                              {
+  37   5                                               Left_move_half();
+  38   5                                              }
+  39   4                                              else
+  40   4                                              {
+  41   5                                              Right_move_half();
+  42   5                                              }
+  43   4                                      }
+  44   3                      }
+  45   2                      else
+  46   2                      {
+  47   3                              //停止
+  48   3                              Stop_move();
+  49   3                              
+  50   3                              Delay10us(25000);
+  51   3                              compare=1;                                      //右边
+  52   3                              Delay10us(15000);
+  53   3                              Lr=get_distance();
+  54   3                              Delay10us(15000);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/27/2023 12:04:59 PAGE 2   
+
+  55   3                              compare=5;                                      //左边
+  56   3                              Delay10us(15000);
+  57   3                              Ll=get_distance();
+  58   3                              Delay10us(15000);
+  59   3                              compare=3;                                      //复位向前
+  60   3                                              
+  61   3                                      if(Lr>Ll||Lr<0)
+  62   3                                              {
+  63   4                                                      Right_move();
+  64   4                                              }
+  65   3                                              else
+  66   3                                              {
+  67   4                                                      Left_move();
+  68   4                                              }
+  69   3                                              Delay10us(13500);//差速转向
+  70   3                      }               
+  71   2              }
+  72   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    159    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
