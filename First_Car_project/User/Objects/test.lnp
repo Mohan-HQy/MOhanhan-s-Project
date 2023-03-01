@@ -1,8 +1,0 @@
-".\Objects\main.obj",
-".\Objects\track.obj",
-".\Objects\Move.obj",
-".\Objects\delay.obj",
-".\Objects\Timer.obj",
-".\Objects\HCSR04.obj" 
-TO ".\Objects\test" 
-PRINT(".\Listings\test.m51") RAMSIZE(256) 
