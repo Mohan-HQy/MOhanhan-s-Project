@@ -1,0 +1,165 @@
+C51 COMPILER V9.60.7.0   TRACK                                                             02/27/2023 22:08:27 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TRACK
+OBJECT MODULE PLACED IN .\Objects\track.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Control\track.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\User;.\Software;.\Contro
+                    -l) DEBUG OBJECTEXTEND PRINT(.\Listings\track.lst) OBJECT(.\Objects\track.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <Move.h>
+   3          
+   4          
+   5          /*
+   6          循迹红外
+   7          */
+   8          sbit AL =P2^0;
+   9          sbit BL =P2^1;
+  10          sbit CL =P2^2;
+  11          sbit DL =P2^3;
+  12          sbit EL =P2^4;
+  13          
+  14          extern unsigned int ENA_compare;
+  15          extern unsigned int ENB_compare; 
+  16          
+  17          //unsigned char a;
+  18          //unsigned char b;
+  19          //unsigned char c;
+  20          //unsigned char d;
+  21          //unsigned char e;
+  22          
+  23          //void Track()
+  24          //{                                                     
+  25          //                                                      if(AL==1&&BL==1&&CL==1&&DL==1&&EL==1)          //退出循迹模式       全亮都为11111
+  26          //                                                              {               
+  27          //                                                                      ENA_compare=50;                        //左电机初始转速
+  28          //                                                                      ENB_compare=50;                                                                 //右电机初始转速
+  29          //                                                                      Go_move();
+  30          //                                                              }
+  31          //                                                      if(AL==0&&BL==0&&CL==0&&DL==0&&EL==0)          //悬空       全灭都为00000
+  32          //                                                      {
+  33          //                                                                      
+  34          //                                                                      ENA_compare=50;                                         //左电机初始转速
+  35          //                                                                      ENB_compare=50;                                                                 //右电机初始转速
+  36          //                                                                      Stop_move();
+  37          //                                                      }
+  38          //                                                      else
+  39          //                                                      {
+  40          //                                                              
+  41          //                                                              a=AL;
+  42          //                                                              b=BL;
+  43          //                                                              c=CL;
+  44          //                                                              d=DL;
+  45          //                                                              e=EL;   
+  46          //                                                                      if(a+b>d+e)//黑线在左边
+  47          //                                       {
+  48          //                                                                                              ENA_compare=40;                                         //左电机初始转速
+  49          //                                                                                              ENB_compare=40;                                                                 //右电机初始转速                                                                                
+  50          //                                                                                              Left_move();               //左转
+  51          //                              
+  52          //                                                                                      
+  53          //                                                                              }
+  54          //                                                                      if(a+b<d+e)//黑线在右边
+C51 COMPILER V9.60.7.0   TRACK                                                             02/27/2023 22:08:27 PAGE 2   
+
+  55          //                                                                              {
+  56          //                                                                                          ENA_compare=40;                                             //左电机初始转速
+  57          //                                                                                          ENB_compare=40;                                                                     //右电机初始转速
+  58          //                                                                                          Right_move();                                                                                               //右转
+  59          //                                                                              }
+  60          //                                                                      if((a&&b&&d&&e)&&!c)
+  61          //                                                                      {
+  62          //                                                                                          ENA_compare=25;                                             //左电机初始转速
+  63          //                                                                                          ENB_compare=25;                                                                     //右电机初始转速
+  64          //                                                                                          Go_move();               //直行                                                                             
+  65          //                                                                      
+  66          //                                                                      }
+  67          //                                                      }       
+  68          //}
+  69          
+  70          void Track()   
+  71          {       
+  72   1      
+  73   1              if(AL==1&&BL==1&&CL==0&&DL==1&&EL==1)      //小车两边都接收到红外线黑线在中间小车直行       00100
+  74   1                      {
+  75   2                              Go_move();                      
+  76   2                      }
+  77   1              else if(AL==1&&BL==0&&DL==1&&EL==1)          //小车右边扫描到黑线（轻微偏左）  小车应该向右移动  10111
+  78   1                      {                                           
+  79   2                              ENA_compare=60;                                         //左电机初始转速
+  80   2                              ENB_compare=25;                                               //右电机初始转速
+  81   2                              Go_move();
+  82   2                      }                               
+  83   1              else if(AL==1&&BL==1&&DL==0&&EL==1)          //小车左边扫描到黑线（轻微偏右） 小车应该向左移动     11101
+  84   1                      {                       
+  85   2                              ENA_compare=25;                        //左电机初始转速
+  86   2                              ENB_compare=60;                        //右电机初始转速
+  87   2                              Go_move();
+  88   2                      }
+  89   1              else if(AL==0&&BL==1&&DL==1&&EL==1)                //小车右边扫描到黑线（转小圈）  小车应该向右移动  01111
+  90   1                      {                                                       
+  91   2                              ENA_compare=35;                        //左电机初始转速
+  92   2                              ENB_compare=35;                        //右电机初始转速
+  93   2                              Right_move();
+  94   2                              while(BL==1);
+  95   2                      }
+  96   1              else if(AL==0&&BL==0&&EL==1)               //小车右边扫描到黑线（转小圈）  小车应该向右移动  00111
+  97   1                      {                               
+  98   2                              ENA_compare=40;                        //左电机初始转速
+  99   2                              ENB_compare=40;                        //右电机初始转速
+ 100   2                              Right_move();
+ 101   2                              while(CL==1);
+ 102   2                      }                                       
+ 103   1              else if(AL==1&&BL==1&&DL==1&&EL==0)      //小车左边扫描到黑线（转小圈）  小车应该向左移动  11110
+ 104   1                      {                       
+ 105   2                              ENA_compare=35;                        //左电机初始转速
+ 106   2                              ENB_compare=35;                        //右电机初始转速
+ 107   2                              Left_move();
+ 108   2                              while(DL==1);
+ 109   2                      }
+ 110   1              else if(AL==1&&DL==0&&EL==0)      //小车左边扫描到黑线（转小圈）  小车应该向左移动  11100
+ 111   1                      {                       
+ 112   2                              ENA_compare=40;                        //左电机初始转速
+ 113   2                              ENB_compare=40;                        //右电机初始转速
+ 114   2                              Left_move();
+ 115   2                              while(CL==1);
+ 116   2                      }
+C51 COMPILER V9.60.7.0   TRACK                                                             02/27/2023 22:08:27 PAGE 3   
+
+ 117   1              else
+ 118   1              {
+ 119   2                              if(AL==0&&BL==0&&CL==0&&DL==0&&EL==0)          //退出循迹模式       全灭都为11111
+ 120   2                              {
+ 121   3                                      
+ 122   3                                      ENA_compare=50;                        //左电机初始转速
+ 123   3                                      ENB_compare=50;                        //右电机初始转速
+ 124   3                                      Stop_move();
+ 125   3                              }
+ 126   2                              if(AL==1&&BL==1&&CL==1&&DL==1&&EL==1)          //退出循迹模式       全灭都为11111
+ 127   2                              {
+ 128   3                                      
+ 129   3                                      ENA_compare=50;                        //左电机初始转速
+ 130   3                                      ENB_compare=50;                        //右电机初始转速
+ 131   3                                      Go_move();
+ 132   3                              }
+ 133   2              }
+ 134   1              
+ 135   1              
+ 136   1      }
+ 137          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    258    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

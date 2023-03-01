@@ -1,0 +1,82 @@
+C51 COMPILER V9.60.7.0   MOVE                                                              02/27/2023 22:08:27 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MOVE
+OBJECT MODULE PLACED IN .\Objects\Move.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Control\Move.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\User;.\Software;.\Control
+                    -) DEBUG OBJECTEXTEND PRINT(.\Listings\Move.lst) OBJECT(.\Objects\Move.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          /*
+   3          µç»ú
+   4          */
+   5          sbit IN1 = P1^3;
+   6          sbit IN2 = P1^4;         
+   7          sbit IN3 = P1^5;
+   8          sbit IN4 = P1^6;
+   9          
+  10          void Right_move()
+  11          {
+  12   1              IN1=1;
+  13   1              IN2=0;
+  14   1              IN3=0;
+  15   1              IN4=1;
+  16   1      }
+  17          
+  18          void Right_half_move()
+  19          {
+  20   1              IN1=1;
+  21   1              IN2=0;
+  22   1              IN3=1;
+  23   1              IN4=1;
+  24   1      }
+  25          
+  26          void Left_move()
+  27          {
+  28   1              IN1=0;
+  29   1              IN2=1;
+  30   1              IN3=1;
+  31   1              IN4=0;
+  32   1      }
+  33          
+  34          void Left_half_move()
+  35          {
+  36   1              IN1=1;
+  37   1              IN2=1;
+  38   1              IN3=1;
+  39   1              IN4=0;
+  40   1      }
+  41          
+  42          void Go_move()
+  43          {
+  44   1              IN1=1;
+  45   1              IN2=0;
+  46   1              IN3=1;
+  47   1              IN4=0;
+  48   1      }
+  49          
+  50          void Stop_move()
+  51          {
+  52   1              IN1=1;
+  53   1              IN2=1;
+  54   1              IN3=1;
+C51 COMPILER V9.60.7.0   MOVE                                                              02/27/2023 22:08:27 PAGE 2   
+
+  55   1              IN4=1;
+  56   1      } 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     54    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

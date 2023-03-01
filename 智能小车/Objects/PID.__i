@@ -1,0 +1,1 @@
+"Control\PID.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\User;.\Software;.\Control) DEBUG OBJECTEXTEND PRINT(.\Listings\PID.lst) OBJECT(.\Objects\PID.obj)

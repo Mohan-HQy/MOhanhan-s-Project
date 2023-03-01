@@ -1,0 +1,127 @@
+C51 COMPILER V9.60.7.0   TIMER                                                             02/27/2023 22:08:27 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TIMER
+OBJECT MODULE PLACED IN .\Objects\Timer.obj
+COMPILER INVOKED BY: D:\keil5\C51\BIN\C51.EXE Software\Timer.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\User;.\Software;.\Contr
+                    -ol) DEBUG OBJECTEXTEND PRINT(.\Listings\Timer.lst) OBJECT(.\Objects\Timer.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          /*
+   4          电机使能
+   5          */
+   6          sbit ENA = P1^2;//左
+   7          sbit ENB = P1^7;//右
+   8          
+   9          /*
+  10          SG90舵机-->0.002s/度
+  11          */
+  12          sbit PWM=P2^5;//舵机信号
+  13          
+  14          unsigned int  counter=0;
+  15          unsigned int  compare=3;
+  16          unsigned int  EN_counter=0;
+  17          unsigned int  ENA_compare;
+  18          unsigned int  ENB_compare;
+  19          
+  20          void Timer1Init(void)           //500微秒@11.0592MHz
+  21          {
+  22   1              TMOD &= 0x0F;           //设置定时器模式
+  23   1              TMOD |= 0x10;           //设置定时器模式
+  24   1              TL1 = 0x33;             //设置定时初始值
+  25   1              TH1 = 0xFE;             //设置定时初始值
+  26   1              TF1 = 0;                //清除TF1标志
+  27   1              TR1 = 1;                //定时器1开始计时
+  28   1              EA=1;
+  29   1              ET1=1;
+  30   1              PT1=1;
+  31   1      }
+  32          
+  33          void Timer2Init(void)           //100微秒@11.0592MHz
+  34          {
+  35   1              T2MOD = 0;              //初始化模式寄存器
+  36   1              T2CON = 0;              //初始化控制寄存器
+  37   1              TL2 = 0xA4;             //设置定时初始值
+  38   1              TH2 = 0xFF;             //设置定时初始值
+  39   1              RCAP2L = 0xA4;          //设置定时重载值
+  40   1              RCAP2H = 0xFF;          //设置定时重载值
+  41   1              TR2 = 1;                //定时器2开始计时
+  42   1              ET2=1;
+  43   1              EA=1;
+  44   1              PT2=0;
+  45   1      }
+  46          
+  47          void Timer_T1(void) interrupt 3
+  48          {
+  49   1              TL1 = 0x33;             //设置定时初始值
+  50   1              TH1 = 0xFE;             //设置定时初始值
+  51   1              
+  52   1              counter++;
+  53   1              
+  54   1                              if(counter>40)
+C51 COMPILER V9.60.7.0   TIMER                                                             02/27/2023 22:08:27 PAGE 2   
+
+  55   1                              {
+  56   2                                      counter=0;
+  57   2                              }
+  58   1                              
+  59   1              if(counter<compare)
+  60   1              {
+  61   2                      PWM=1;
+  62   2              }
+  63   1              else
+  64   1              {
+  65   2                      PWM=0;
+  66   2              }
+  67   1              
+  68   1      }
+  69          
+  70          void EN_PWM() interrupt 5
+  71          {
+  72   1              RCAP2L = 0xA4;          //设置定时重载值
+  73   1              RCAP2H = 0xFF;          //设置定时重载值
+  74   1              TF2=0;              //置位清零
+  75   1              
+  76   1              EN_counter++;
+  77   1                                      
+  78   1                                      if(EN_counter>100)
+  79   1                                      {
+  80   2                                              EN_counter=0;
+  81   2                                      }
+  82   1      /*******************************************************************/                           
+  83   1                      if(EN_counter<ENA_compare)
+  84   1                      {
+  85   2                              ENA=1;
+  86   2                      }
+  87   1                      else
+  88   1                      {
+  89   2                              ENA=0;
+  90   2                      }
+  91   1      /*******************************************************************/   
+  92   1                      if(EN_counter<ENB_compare)
+  93   1                      {
+  94   2                              ENB=1;
+  95   2                      }
+  96   1                      else
+  97   1                      {
+  98   2                              ENB=0;
+  99   2                      }
+ 100   1      }
+ 101          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    178    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     10    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
